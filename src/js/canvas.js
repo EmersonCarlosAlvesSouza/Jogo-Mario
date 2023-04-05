@@ -1,6 +1,7 @@
 import platform from '../imagens/platform.png'
 import hills from '../imagens/hills.png'
 import background from '../imagens/background.png'
+import platformSmallTall from '../imagens/platformSmallTall.png'
 //console.log(platform)
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
@@ -10,8 +11,24 @@ canvas.height = 576
 
 const gravity = 1.5
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class Player {
     constructor(){
+        this.speed = 10
         this.position = {
             x: 100,
             y: 100
@@ -81,25 +98,11 @@ function createImage(imageSrc){
 }
 
 let platformImage = createImage(platform)
-
+let platformSmallTallImage = createImage(platformSmallTall)
 let player = new Player()
-let platforms = [
-  new Platform({x: -1, y: 470, image: platformImage}), 
-  new Platform({x: platformImage.width -3, y: 470, image: platformImage}),
-  new Platform({x: platformImage.width * 2 + 100, y: 470, image: platformImage})]
+let platforms = []
+let genericObject = []
 
-  let genericObject = [
-  new GenericObject({
-    x: -1,
-    y: -1,
-    image: createImage(background)
-  }),
-  new GenericObject({
-    x: -1,
-    y: -1,
-    image: createImage(hills)
-  })
-]
 const keys = {
     rigth: {
         pressed: false
@@ -116,9 +119,16 @@ platformImage = createImage(platform)
 
 player = new Player()
 platforms = [
+  new Platform({x: platformImage.width * 4 + 300 - 2 + platformImage.width - platformSmallTallImage.width, y: 270, image: createImage(platformSmallTall)}),
   new Platform({x: -1, y: 470, image: platformImage}), 
   new Platform({x: platformImage.width -3, y: 470, image: platformImage}),
-  new Platform({x: platformImage.width * 2 + 100, y: 470, image: platformImage})]
+  new Platform({x: platformImage.width * 2 + 100, y: 470, image: platformImage}),
+  new Platform({x: platformImage.width * 3 + 300, y: 470, image: platformImage}),
+  new Platform({x: platformImage.width * 4 + 300 - 2, y: 470, image: platformImage}),
+  new Platform({x: platformImage.width * 5 + 700 - 2, y: 470, image: platformImage}),
+
+
+]
 
 genericObject = [
   new GenericObject({
@@ -148,29 +158,33 @@ function animate(){
     })
     player.update()
     if (keys.rigth.pressed && player.position.x < 400) {
-        player.velocity.x = 5
-    } else if (keys.left.pressed && player.position.x > 100) {
-        player.velocity.x = -5
+        player.velocity.x = player.speed
+    } else if (
+      (keys.left.pressed && player.position.x > 100) || 
+      (keys.left.pressed && scrollOffset === 0 && player.position.x > 0)
+      ) {
+        player.velocity.x = -player.speed
     } else {
         player.velocity.x = 0
 
         if (keys.rigth.pressed){
-            scrollOffset += 5
+            scrollOffset += player.speed
             platforms.forEach((platform) => {
-              platform.position.x -= 5    
+              platform.position.x -= player.speed  
             })
             genericObject.forEach((genericObject) => {
-              genericObject.position.x -= 3
+              genericObject.position.x -= player.speed * 0.66
             })
             
-        } else if (keys.left.pressed){
-            scrollOffset -= 5
+        } else if (keys.left.pressed && scrollOffset > 0){
+            scrollOffset -= player.speed
+
             platforms.forEach((platform) => {
-                platform.position.x += 5   
+              platform.position.x += player.speed
               })
               
             genericObject.forEach((genericObject) => {
-              genericObject.position.x += 3
+              genericObject.position.x += player.speed * 0.66
             })
         }
     }
@@ -185,7 +199,7 @@ function animate(){
         }
     })
     //condição de vitoria
-    if (scrollOffset > 2000){
+    if (scrollOffset > platformImage.width * 5 + 300 - 2){
         console.log('Você ganhou')
     }
     //condição de derrota
@@ -194,6 +208,7 @@ function animate(){
     }
 }
 
+init
 animate()
 
 addEventListener('keydown', ({ keyCode }) => {
@@ -217,7 +232,7 @@ addEventListener('keydown', ({ keyCode }) => {
         
         case 87:
             console.log('up')
-            player.velocity.y -= 20
+            player.velocity.y -= 25
             break
     }
     //console.log(keys.rigth.pressed)
@@ -245,7 +260,6 @@ addEventListener('keyup', ({ keyCode }) => {
     
     case 87:
         console.log('up')
-        player.velocity.y -= 20
         break
     }
     //console.log(keys.rigth.pressed)
