@@ -1,8 +1,14 @@
-import platform from '../imagens/platform.png'
-import hills from '../imagens/hills.png'
-import background from '../imagens/background.png'
-import platformSmallTall from '../imagens/platformSmallTall.png'
-//console.log(platform)
+import platform from '../img/platform.png' 
+import hills from '../img/hills.png' 
+import background from '../img/background.png' 
+import platformSmallTall from '../img/platformSmallTall.png'  
+
+import spriteRunLeft from '../img/spriteRunLeft.png' 
+import spriteRunRight from '../img/spriteRunRight.png' 
+import spriteStandLeft from '../img/spriteStandLeft.png' 
+import spriteStandRight from '../img/spriteStandRight.png'
+
+
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
@@ -10,20 +16,6 @@ canvas.width = 1024
 canvas.height = 576
 
 const gravity = 1.5
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class Player {
@@ -35,19 +27,54 @@ class Player {
         }
         this.velocity = {
             x: 0,
-            y: 1
+            y: 0
         }
-        this.width = 30
-        this.height = 30
+
+        this.width = 66
+        this.height = 150
+
+        this.image = createImage(spriteStandRight)
+        this.frames = 0
+        this.sprites = {
+            stand: {
+                right: createImage(spriteStandRight),
+                left: createImage(spriteStandLeft),
+
+                cropWidth: 177,
+                width: 66
+            },
+            run: {
+                right: createImage(spriteRunRight),
+                left: createImage(spriteRunLeft),
+
+                cropWidth: 341,
+                width: 127.875
+            }
+        }
+
+        this.currentSprite = this.sprites.stand.right
+        this.currentCropWidth = 177
     }
     draw(){
-        c.fillStyle = 'red'
-        c.fillRect(this.position.x, 
-        this.position.y, this.width, this.height
-        )
+        c.drawImage(
+            this.currentSprite,
+            this.currentCropWidth * this.frames,
+            0,
+            this.currentCropWidth,
+            400, 
+            this.position.x, 
+            this.position.y, 
+            this.width, 
+            this.height
+            )
     }
 
     update(){
+        this.frames++
+        if (this.frames > 59 && this.currentSprite === this.sprites.stand.right) 
+        this.frames = 0
+        else if (this.frames > 29 && (this.currentSprite === this.sprites.run.right || this.currentSprite === this.sprites.run.left)) 
+        this.frames = 0
         this.draw()
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
@@ -103,6 +130,7 @@ let player = new Player()
 let platforms = []
 let genericObject = []
 
+let currentKey
 const keys = {
     rigth: {
         pressed: false
@@ -198,6 +226,19 @@ function animate(){
             player.velocity.y = 0
         }
     })
+
+    // sprite switching
+    if (currentKey === 'right' && player.currentSprite !== player.sprites.run.right){
+        player.frames = 1
+        player.currentSprite = player.sprites.run.right
+        player.currentCropWidth = player.sprites.run.cropWidth
+        player.width = player.sprites.run.width
+    } else if (currentKey === 'left' && player.currentSprite !== player.sprites.run.left){
+        player.currentSprite = player.sprites.run.left
+        player.currentCropWidth = player.sprites.run.cropWidth
+        player.width = player.sprites.run.width
+    }
+
     //condição de vitoria
     if (scrollOffset > platformImage.width * 5 + 300 - 2){
         console.log('Você ganhou')
@@ -219,6 +260,7 @@ addEventListener('keydown', ({ keyCode }) => {
         case 65:
             console.log('left')
             keys.left.pressed = true
+            currentKey = 'left'
             break
         case 83:
             console.log('down')
@@ -227,7 +269,8 @@ addEventListener('keydown', ({ keyCode }) => {
         case 68:
             console.log('right')
             keys.rigth.pressed = true
-            //player.velocity.x = 1
+            currentKey = 'right'
+
             break
         
         case 87:
@@ -255,7 +298,7 @@ addEventListener('keyup', ({ keyCode }) => {
     case 68:
         console.log('right')
         keys.rigth.pressed = false
-        //player.velocity.x = 0
+
         break
     
     case 87:
